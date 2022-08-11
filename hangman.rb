@@ -1,5 +1,5 @@
 class Hangman
-  attr_accessor :guessed_words, :guess, :secret_word
+  attr_accessor :guess, :secret_word, :guessed_letters
 
   def initialize
     @dictionary = File.readlines('dictionary.csv')
@@ -21,17 +21,23 @@ class Hangman
       loop do
         puts "\nPick a letter or guess the word!\n"
         @guess = gets.chomp.downcase
-        if @guess.length == 1
+        if @guess.length == 1 
+          if @guessed_letters.include?(@guess)
+            puts "\nLetter already chosen!"
+            next
+          end
           guess_letter
+          return if check_win
           @turn += 1
           break
         elsif @guess.length != 1
-          guess_word
+          return if guess_word
+          return if check_win
           @turn += 1
-          return
+          break
         end
+        puts "\n Turn: #{@turn}/10"
       end
-      return if check_win == true || guess_word == true
     end
     puts "\nYou lose the word was '#{secret_word}'\n\n"
   end
@@ -53,20 +59,21 @@ class Hangman
   def guess_letter
     puts "\n\nGuessed letters: #{@guessed_letters.push(@guess)}"
     blank
-    # puts "\n\n\n #{@secret_word}\n\n\n"
+    puts "\n\n\n #{@secret_word}\n\n\n"
   end
 
   def check_win
     unless @blank.include?('_')
-      puts "\ncongrats you guessed the word '#{@secret_word}'\n\n"
-      true
+      puts "\nCongrats you guessed the word '#{@secret_word}!'\n\n"
+      return true
     end
   end
 
   def guess_word
     if @guess == @secret_word
-      puts "\ncongrats you guessed the word '#{@secret_word}'\n\n"
-      true
+      puts "\nCongrats you guessed the word '#{@secret_word}!'\n\n"
+      return true
+    else puts "\nIncorrect guess!\n"
     end
   end
 end
